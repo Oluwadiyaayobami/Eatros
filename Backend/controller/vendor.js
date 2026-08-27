@@ -6,7 +6,7 @@ const Transaction = require("../models/transaction");
 const Review = require("../models/review");
 const Collection = require("../models/collection");
 
-// Create a new product (Vendor only)
+// Create a new product (Vendor only
 const addProduct = asyncHandler(async (req, res) => {
     // authorization middleware should set req.acessToken
     const vendorId = req.acessToken.userID; 
