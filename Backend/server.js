@@ -9,7 +9,7 @@ const app = express()
 const server = http.createServer(app)
 const io = new Server(server, {
   cors: {
-    origin: ["https://paycoreng.vercel.app", "https://paycore-ng.vercel.app", "http://localhost:3000"],
+    origin: ["https://eatros.vercel.app", "http://localhost:3000"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true
   }
