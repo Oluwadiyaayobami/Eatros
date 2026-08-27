@@ -1,4 +1,4 @@
-const asyncHandler = require("../utils/errorhandler")
+const asyncHandler = require("../utils/errorHandler")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const userSchema = require("../models/user")

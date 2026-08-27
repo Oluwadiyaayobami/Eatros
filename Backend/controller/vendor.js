@@ -1,4 +1,4 @@
-const asyncHandler = require("../utils/errorhandler");
+const asyncHandler = require("../utils/errorHandler");
 const Product = require("../models/product");
 const User = require("../models/user");
 const Order = require("../models/order");
