@@ -2,12 +2,16 @@
 
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
+import { Pacifico } from 'next/font/google'
+
+const pacifico = Pacifico({ weight: '400', subsets: ['latin'], display: 'swap' })
 
 const LoadingAnimation = ({ onComplete }) => {
   const containerRef = useRef(null)
   const wrapperRef = useRef(null)
+  const iconRef = useRef(null)
   const lettersRef = useRef([])
-  const pinRef = useRef(null)
+  const subtitleRef = useRef(null)
 
   useEffect(() => {
     const tl = gsap.timeline({
@@ -18,73 +22,102 @@ const LoadingAnimation = ({ onComplete }) => {
       }
     })
 
-    // Setup initial state: elements are invisible and positioned above
+    // Setup initial state
+    gsap.set(iconRef.current, { y: -100, opacity: 0, scale: 0.8 })
     gsap.set(lettersRef.current, { y: -60, opacity: 0 })
-    gsap.set(pinRef.current, { scale: 0, opacity: 0 })
+    gsap.set(subtitleRef.current, { opacity: 0, y: 20 })
 
+    // Animate Icon
+    tl.to(iconRef.current, {
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      duration: 0.8,
+      ease: "bounce.out"
+    })
     // Staggered drop down animation for the letters
-    tl.to(lettersRef.current, {
+    .to(lettersRef.current, {
       y: 0,
       opacity: 1,
       duration: 0.6,
       stagger: 0.1,
       ease: "back.out(1.5)"
-    })
-    // Pin pops in after the letters finish dropping
-    .to(pinRef.current, {
-      scale: 1,
+    }, "-=0.3")
+    // Fade in subtitle
+    .to(subtitleRef.current, {
       opacity: 1,
+      y: 0,
       duration: 0.5,
-      ease: "back.out(2)"
+      ease: "power2.out"
     }, "-=0.2")
-    // Add a gentle pulse to the entire wrapper mimicking an app loading heartbeat
-    .to(wrapperRef.current, {
-      scale: 1.05,
-      duration: 0.5,
-      yoyo: true,
-      repeat: 1, // Pulse down and up once
-      ease: "sine.inOut"
-    }, "+=0.2")
     // Zoom through effect: massive scale up and fade out before transition
     .to(wrapperRef.current, {
-      scale: 60,
+      scale: 30,
       opacity: 0,
-      duration: 0.7,
+      duration: 0.8,
       ease: "power3.in"
-    }, "+=0.3")
+    }, "+=0.6")
 
     return () => {
       tl.kill()
     }
   }, [onComplete])
 
-  const letters = "EATRO".split("")
+  const letters = "Eatro".split("")
 
   return (
     <div
       ref={containerRef}
-      // Using a solid yellow background inspired by the visual reference
-      className="fixed inset-0 flex items-center justify-center min-h-screen bg-[#FFC244] z-50 overflow-hidden"
+      className={`fixed inset-0 flex flex-col items-center justify-center min-h-screen bg-white z-50 overflow-hidden ${pacifico.className}`}
     >
-      <div ref={wrapperRef} className="flex items-center">
-        {/* Italic EATRO wordmark */}
-        <h1 className="text-6xl tracking-tight font-extrabold flex items-center italic">
-          {letters.map((char, index) => (
-            <span
-              key={index}
-              ref={(el) => (lettersRef.current[index] = el)}
-              className={`inline-block ${index < 3 ? 'text-[#A31621]' : 'text-white'}`}
-            >
-              {char}
-            </span>
-          ))}
-          {/* Location pin acting as an exclamation/accent mark */}
-          <span ref={pinRef} className="inline-block ml-1 mt-1">
-            <svg className="w-12 h-12 text-[#A31621]" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-            </svg>
-          </span>
+      <div ref={wrapperRef} className="flex flex-col items-center">
+        {/* The Cloche & C Icon */}
+        <div ref={iconRef} className="mb-2">
+          <svg width="120" height="120" viewBox="0 0 100 100" fill="none">
+            {/* Cloche Knob */}
+            <path d="M47 22 C45 16 55 16 53 22" stroke="#FF5722" strokeWidth="5" strokeLinecap="round" />
+            {/* Cloche Dome */}
+            <path d="M28 45 C28 25 72 25 72 45" stroke="#FF5722" strokeWidth="5" strokeLinecap="round" />
+            {/* Cloche Rim */}
+            <path d="M22 50 C40 45 60 45 78 50" stroke="#FF5722" strokeWidth="6" strokeLinecap="round" />
+            {/* C Shape / Plate */}
+            <path d="M72 65 C40 50 10 70 20 90 C30 105 60 100 72 82" stroke="#FF5722" strokeWidth="6" strokeLinecap="round" />
+          </svg>
+        </div>
+
+        {/* Eatro wordmark */}
+        <h1 className="text-7xl font-bold flex items-center text-[#FF5722]" style={{ lineHeight: '1.2' }}>
+          {letters.map((char, index) => {
+            if (char === 'o') {
+              return (
+                <span
+                  key={index}
+                  ref={(el) => (lettersRef.current[index] = el)}
+                  className="inline-flex items-center justify-center relative -ml-1 mt-3 w-[46px] h-[46px] bg-[#FF5722] rounded-full"
+                >
+                  {/* Fork Cutout for 'o' */}
+                  <svg viewBox="0 0 24 24" fill="white" className="w-[18px] h-[26px]">
+                    <path d="M7 2v6c0 1.1.9 2 2 2h2v12h2V10h2c1.1 0 2-.9 2-2V2h-1.5v6c0 .3-.2.5-.5.5s-.5-.2-.5-.5V2h-2v6c0 .3-.2.5-.5.5s-.5-.2-.5-.5V2H10v6c0 .3-.2.5-.5.5s-.5-.2-.5-.5V2H7z"/>
+                  </svg>
+                </span>
+              )
+            }
+            return (
+              <span
+                key={index}
+                ref={(el) => (lettersRef.current[index] = el)}
+                className="inline-block relative"
+              >
+                {char}
+              </span>
+            )
+          })}
         </h1>
+
+        {/* Subtitle */}
+        <p ref={subtitleRef} className="mt-4 text-[#4A3B32] text-sm tracking-[0.3em] font-sans font-bold uppercase">
+          We Deliver. You Enjoy.
+        </p>
       </div>
     </div>
   )
