@@ -68,7 +68,7 @@ const LoadingAnimation = ({ onComplete }) => {
   return (
     <div
       ref={containerRef}
-      className={`fixed inset-0 flex flex-col items-center justify-center min-h-screen bg-white z-50 overflow-hidden ${pacifico.className}`}
+      className={`fixed top-0 left-0 w-full h-[100dvh] flex flex-col items-center justify-center bg-white z-50 overflow-hidden ${pacifico.className}`}
     >
       <div ref={wrapperRef} className="flex flex-col items-center">
         {/* The Cloche & C Icon */}

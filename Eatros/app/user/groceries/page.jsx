@@ -26,7 +26,7 @@ const page = () => {
             <Link href="/user/home_dashboard" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition shrink-0">
               <ChevronLeft size={24} className="text-black" />
             </Link>
-            <h1 className="text-[34px] font-extrabold text-black tracking-tight">Food</h1>
+            <h1 className="text-[34px] font-extrabold text-black tracking-tight">Groceries</h1>
           </div>
           
           {/* Location Display */}
@@ -47,23 +47,23 @@ const page = () => {
             <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" strokeWidth={2.5} />
             <input 
               type="text" 
-              placeholder="Search in Food" 
+              placeholder="Search in Groceries" 
               className="w-full bg-[#f2f2f2] rounded-full py-3.5 pl-12 pr-4 outline-none focus:ring-2 focus:ring-gray-300 text-black font-semibold placeholder-gray-500 transition"
             />
           </div>
         </div>
 
         {/* Categories */}
-        <Categories category="food" />
+        <Categories category="groceries" />
 
         {/* Filters */}
-        <FilterChips category="food" />
+        <FilterChips category="groceries" />
 
         {/* Promo Banner */}
         <PromoBanner />
 
         {/* Restaurants List */}
-        <RestaurantCard category="food" />
+        <RestaurantCard category="groceries" />
         
       </AppLayout>
     </div>

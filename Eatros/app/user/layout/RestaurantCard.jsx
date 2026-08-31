@@ -4,23 +4,23 @@ import Link from "next/link";
 import { fetchApi } from "@/utils/api";
 import toast from "react-hot-toast";
 
-const RestaurantCard = () => {
+const RestaurantCard = ({ category = "food" }) => {
   const [restaurants, setRestaurants] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchVendors = async () => {
       try {
-        const data = await fetchApi('/vendor/list');
+        const data = await fetchApi(`/vendor/list?type=${category}`);
         setRestaurants(data.vendors || []);
       } catch (error) {
-        toast.error("Failed to load restaurants");
+        toast.error("Failed to load vendors");
       } finally {
         setIsLoading(false);
       }
     };
     fetchVendors();
-  }, []);
+  }, [category]);
 
   if (isLoading) {
     return (
@@ -33,7 +33,7 @@ const RestaurantCard = () => {
   if (restaurants.length === 0) {
     return (
       <div className="px-4 pb-20 text-center py-10 text-gray-500 font-medium">
-        No restaurants available at the moment.
+        No vendors available for this category at the moment.
       </div>
     );
   }

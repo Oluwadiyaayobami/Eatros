@@ -1,11 +1,18 @@
 import React from 'react';
 import { ChevronDown, Crown } from 'lucide-react';
 
-const FilterChips = () => {
+const FilterChips = ({ category = "food" }) => {
+  const getFilterLabel = () => {
+    if (category === 'groceries') return 'Grocery type';
+    if (category === 'shops') return 'Store type';
+    if (category === 'pharmacy') return 'Product type';
+    return 'Food type';
+  };
+
   return (
     <div className="flex overflow-x-auto gap-3 px-4 pb-6 pt-2 hide-scrollbar">
       <button className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-full text-sm font-semibold text-gray-800 transition whitespace-nowrap">
-        Food type <ChevronDown size={16} className="text-gray-500" />
+        {getFilterLabel()} <ChevronDown size={16} className="text-gray-500" />
       </button>
       
       <button className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-full text-sm font-semibold text-gray-800 transition whitespace-nowrap">

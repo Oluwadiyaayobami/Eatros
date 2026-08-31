@@ -51,10 +51,10 @@ const DashboardContent = () => {
 
   const categories = [
     { id: 'food', name: 'Food', emoji: '🍔', link: '/user/food' },
-    { id: 'groceries', name: 'Groceries', emoji: '🛒', link: '#' },
-    { id: 'shops', name: 'Shops', emoji: '🛍️', link: '#' },
-    { id: 'pharmacy', name: 'Pharmacy & Beauty', emoji: '💊', link: '#' },
-    { id: 'package', name: 'Package Delivery', emoji: '📦', link: '#' },
+    { id: 'groceries', name: 'Groceries', emoji: '🛒', link: '/user/groceries' },
+    { id: 'shops', name: 'Shops', emoji: '🛍️', link: '/user/shops' },
+    { id: 'pharmacy', name: 'Pharmacy & Beauty', emoji: '💊', link: '/user/pharmacy' },
+    { id: 'package', name: 'Package Delivery', emoji: '📦', link: '#', comingSoon: true },
   ];
 
   const CategoryBubble = ({ cat }) => (
@@ -66,7 +66,14 @@ const DashboardContent = () => {
       dragElastic={0.2}
       onTap={(event, info) => {
         // This ensures the link only fires on a clean tap, not after dragging
-        router.push(cat.link);
+        if (cat.comingSoon) {
+          toast.success("Coming soon! 🚀", {
+            icon: cat.emoji,
+            style: { borderRadius: '10px', background: '#333', color: '#fff' }
+          });
+        } else {
+          router.push(cat.link);
+        }
       }}
       className="flex flex-col items-center gap-3 group cursor-grab active:cursor-grabbing touch-none z-10"
     >

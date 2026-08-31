@@ -41,8 +41,15 @@ const getMyProducts = asyncHandler(async (req, res) => {
 
 // Customer route: Get all open vendors
 const getAllVendors = asyncHandler(async (req, res) => {
-    // We filter by role "vendor" and ideally where isOpen is true, but we'll return all vendors for now
-    const vendors = await User.find({ role: "vendor" })
+    const { type } = req.query;
+    
+    // We filter by role "vendor" and ideally where isOpen is true
+    let filter = { role: "vendor" };
+    if (type) {
+        filter["vendorDetails.vendorType"] = type;
+    }
+
+    const vendors = await User.find(filter)
         .select("-password -bankDetails -agentDetails");
     res.status(200).json({ vendors });
 });
@@ -69,7 +76,7 @@ const getVendorProfileById = asyncHandler(async (req, res) => {
 // Update vendor profile (Vendor only)
 const updateVendorProfile = asyncHandler(async (req, res) => {
     const vendorId = req.acessToken.userID;
-    const { restaurantName, businessStatus, coverImage, profileImage, storeAddress, description } = req.body;
+    const { vendorType, restaurantName, businessStatus, coverImage, profileImage, storeAddress, description } = req.body;
 
     const user = await User.findById(vendorId);
     if (!user) {
@@ -81,6 +88,7 @@ const updateVendorProfile = asyncHandler(async (req, res) => {
     }
 
     if (restaurantName !== undefined) user.vendorDetails.restaurantName = restaurantName;
+    if (vendorType !== undefined) user.vendorDetails.vendorType = vendorType;
     if (businessStatus !== undefined) user.vendorDetails.businessStatus = businessStatus;
     if (coverImage !== undefined) user.vendorDetails.coverImage = coverImage;
     if (profileImage !== undefined) user.vendorDetails.profileImage = profileImage;
