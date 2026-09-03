@@ -75,7 +75,7 @@ const userSchema = new mongoose.Schema(
     // Vendor/Restaurant-Specific Fields
     // ----------------------------------------------------
     vendorDetails: {
-      vendorType: { type: String, enum: ["food", "groceries", "shops", "pharmacy"], default: "food" },
+      vendorType: { type: [String], enum: ["food", "groceries", "shops", "pharmacy"], default: ["food"] },
       restaurantName: { type: String, trim: true },
       description: { type: String, trim: true },
       storeAddress: { type: String, trim: true },

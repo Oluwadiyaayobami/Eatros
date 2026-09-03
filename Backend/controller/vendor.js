@@ -88,7 +88,9 @@ const updateVendorProfile = asyncHandler(async (req, res) => {
     }
 
     if (restaurantName !== undefined) user.vendorDetails.restaurantName = restaurantName;
-    if (vendorType !== undefined) user.vendorDetails.vendorType = vendorType;
+    if (vendorType !== undefined) {
+        user.vendorDetails.vendorType = Array.isArray(vendorType) ? vendorType : [vendorType];
+    }
     if (businessStatus !== undefined) user.vendorDetails.businessStatus = businessStatus;
     if (coverImage !== undefined) user.vendorDetails.coverImage = coverImage;
     if (profileImage !== undefined) user.vendorDetails.profileImage = profileImage;
