@@ -85,6 +85,18 @@ const userSchema = new mongoose.Schema(
       bannerImage: { type: String, default: "" },
       backgroundImage: { type: String, default: "" },
       isOpen: { type: Boolean, default: false },
+      weeklySchedule: {
+        type: mongoose.Schema.Types.Mixed,
+        default: {
+          Monday: { isOpen: true, open: "08:00", close: "20:00" },
+          Tuesday: { isOpen: true, open: "08:00", close: "20:00" },
+          Wednesday: { isOpen: true, open: "08:00", close: "20:00" },
+          Thursday: { isOpen: true, open: "08:00", close: "20:00" },
+          Friday: { isOpen: true, open: "08:00", close: "20:00" },
+          Saturday: { isOpen: true, open: "08:00", close: "20:00" },
+          Sunday: { isOpen: true, open: "08:00", close: "20:00" }
+        }
+      },
       rating: { type: Number, default: 0 },
       ratingCount: { type: Number, default: 0 },
       likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]

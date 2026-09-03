@@ -129,8 +129,30 @@ const RestaurantDetails = () => {
     );
   }
 
+  const checkIfClosed = (vendorObj) => {
+    if (vendorObj.vendorDetails?.businessStatus === "CLOSED") return true;
+
+    const schedule = vendorObj.vendorDetails?.weeklySchedule;
+    if (!schedule) return false;
+
+    const now = new Date();
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const currentDay = days[now.getDay()];
+    const todaySchedule = schedule[currentDay];
+
+    if (!todaySchedule) return false;
+    if (!todaySchedule.isOpen) return true;
+
+    const currentTimeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+    if (currentTimeStr < todaySchedule.open || currentTimeStr > todaySchedule.close) {
+      return true;
+    }
+
+    return false;
+  };
+
   const vd = vendor.vendorDetails || {};
-  const isClosed = vd.businessStatus === "CLOSED";
+  const isClosed = checkIfClosed(vendor);
   const restaurantName = vd.restaurantName || "Restaurant";
   const coverImage = vd.coverImage || "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1200&q=80";
   const profileImage = vd.profileImage || "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=400&q=80";
@@ -231,7 +253,7 @@ const RestaurantDetails = () => {
               {isClosed ? (
                 <>
                   <Lock size={24} className="text-gray-800" strokeWidth={2} />
-                  <span className="text-xs text-gray-800 font-semibold">Closed</span>
+                  <span className="text-xs text-gray-800 font-semibold text-center">Not available</span>
                 </>
               ) : (
                 <>
@@ -246,8 +268,8 @@ const RestaurantDetails = () => {
           <div className="text-[13px] font-medium mb-2">
             {isClosed ? (
               <>
-                <span className="bg-[#937537] text-white px-2 py-0.5 rounded mr-2">Closed</span>
-                <span className="text-[#937537]">Opens tomorrow at 9:00</span>
+                <span className="bg-[#937537] text-white px-2 py-0.5 rounded mr-2">Not available</span>
+                <span className="text-[#937537]">Please check back later</span>
               </>
             ) : (
               <>

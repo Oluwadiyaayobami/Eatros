@@ -50,6 +50,10 @@ const Settings = () => {
             coverImage: vd.coverImage || prev.coverImage,
             profileImage: vd.profileImage || prev.profileImage,
           }));
+
+          if (vd.weeklySchedule) {
+            setSchedule(vd.weeklySchedule);
+          }
         }
       } catch (err) {
         console.error(err);
@@ -97,7 +101,8 @@ const Settings = () => {
           businessStatus: storeData.isTemporarilyClosed ? "CLOSED" : "OPEN",
           coverImage: storeData.coverImage,
           profileImage: storeData.profileImage,
-          description: storeData.description
+          description: storeData.description,
+          weeklySchedule: schedule
         })
       });
       toast.success("Settings saved successfully!");

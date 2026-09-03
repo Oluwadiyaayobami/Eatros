@@ -1,0 +1,17 @@
+{
+  "name": "Eatro",
+  "short_name": "Eatro",
+  "description": "Eatro - We deliver, you enjoy.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF5722",
+  "icons": [
+    {
+      "src": "/eatrologo.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

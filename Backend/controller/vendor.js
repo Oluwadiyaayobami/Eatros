@@ -76,7 +76,7 @@ const getVendorProfileById = asyncHandler(async (req, res) => {
 // Update vendor profile (Vendor only)
 const updateVendorProfile = asyncHandler(async (req, res) => {
     const vendorId = req.acessToken.userID;
-    const { vendorType, restaurantName, businessStatus, coverImage, profileImage, storeAddress, description } = req.body;
+    const { vendorType, restaurantName, businessStatus, coverImage, profileImage, storeAddress, description, weeklySchedule } = req.body;
 
     const user = await User.findById(vendorId);
     if (!user) {
@@ -96,6 +96,10 @@ const updateVendorProfile = asyncHandler(async (req, res) => {
     if (profileImage !== undefined) user.vendorDetails.profileImage = profileImage;
     if (storeAddress !== undefined) user.vendorDetails.storeAddress = storeAddress;
     if (description !== undefined) user.vendorDetails.description = description;
+    if (weeklySchedule !== undefined) user.vendorDetails.weeklySchedule = weeklySchedule;
+
+    // We must tell mongoose that the Mixed type was modified
+    user.markModified('vendorDetails.weeklySchedule');
 
     await user.save();
 

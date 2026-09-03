@@ -38,10 +38,34 @@ const RestaurantCard = ({ category = "food" }) => {
     );
   }
 
+  const checkIfClosed = (vendor) => {
+    if (vendor.vendorDetails?.businessStatus === "CLOSED") return true;
+
+    const schedule = vendor.vendorDetails?.weeklySchedule;
+    if (!schedule) return false;
+
+    const now = new Date();
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const currentDay = days[now.getDay()];
+    const todaySchedule = schedule[currentDay];
+
+    if (!todaySchedule) return false;
+    if (!todaySchedule.isOpen) return true;
+
+    const currentTimeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+    if (currentTimeStr < todaySchedule.open || currentTimeStr > todaySchedule.close) {
+      return true;
+    }
+
+    return false;
+  };
+
   return (
     <div className="px-4 pb-20">
       <div className="flex flex-col gap-8">
-        {restaurants.map((r) => (
+        {restaurants.map((r) => {
+          const isClosed = checkIfClosed(r);
+          return (
           <Link key={r._id} href={`/user/restaurants/${r._id}`} className="block group cursor-pointer">
             <div className="relative w-full h-[220px] rounded-[1.5rem] overflow-hidden mb-3 shadow-sm">
               {/* Image */}
@@ -58,10 +82,10 @@ const RestaurantCard = ({ category = "food" }) => {
               </div>
 
               {/* Status Overlay (if closed) */}
-              {r.vendorDetails?.businessStatus === "CLOSED" && (
-                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white backdrop-blur-[1px]">
-                  <span className="font-extrabold text-xl">Closed</span>
-                  <span className="text-sm font-medium mt-1">Opens later</span>
+              {isClosed && (
+                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white backdrop-blur-[1px] p-4 text-center">
+                  <span className="font-extrabold text-xl">Not available</span>
+                  <span className="text-sm font-medium mt-1">Please check back later</span>
                 </div>
               )}
             </div>
@@ -72,7 +96,8 @@ const RestaurantCard = ({ category = "food" }) => {
               <Heart size={24} strokeWidth={1.5} className="text-black" />
             </div>
           </Link>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
