@@ -1,22 +1,34 @@
-"use client"
+import HomeClient from "./HomeClient";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import LoadingAnimation from "@/components/LoadingAnimation";
+export const metadata = {
+  title: "Home | Eatros Platform",
+  description: "Welcome to Eatros, the comprehensive platform for food delivery, restaurant management, and agent networking.",
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: "Home | Eatros Platform",
+    description: "Welcome to Eatros, the comprehensive platform.",
+    url: '/',
+    siteName: 'Eatros',
+    images: [
+      {
+        url: '/images/og-image.jpg',
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Home | Eatros Platform",
+    description: "Welcome to Eatros, the comprehensive platform.",
+    images: ['/images/og-image.jpg'],
+  },
+};
 
 export default function Home() {
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  const handleAnimationComplete = () => {
-    setLoading(false);
-    // User requested to show the login page
-    router.push('/auth/login');
-  };
-
-  if (loading) {
-    return <LoadingAnimation onComplete={handleAnimationComplete} />;
-  }
-
-  return null;
+  return <HomeClient />;
 }

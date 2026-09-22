@@ -11,6 +11,14 @@ const withPWA = withPWAInit({
 const nextConfig = {
   /* config options here */
   turbopack: {},
+  async rewrites() {
+    return [
+      { source: '/login', destination: '/auth/login' },
+      { source: '/register', destination: '/auth/user/register' },
+      { source: '/register/agent', destination: '/auth/agent' },
+      { source: '/register/vendor', destination: '/auth/vendor' },
+    ];
+  },
   images: {
     remotePatterns: [
       {
