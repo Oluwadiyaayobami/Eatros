@@ -15,6 +15,10 @@ export const metadata = {
   title: "Eatro",
   description: "Eatro is your premier food delivery service. We Deliver. You Enjoy. Discover and order from a wide variety of local restaurants with fast, reliable, and convenient delivery straight to your door.",
   manifest: "/manifest.json",
+  icons: {
+    icon: '/eatrologo.jpeg',
+    apple: '/eatrologo.jpeg',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

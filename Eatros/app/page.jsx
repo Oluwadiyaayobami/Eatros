@@ -1,19 +1,19 @@
-import HomeClient from "./HomeClient";
+﻿import HomeClient from "./HomeClient";
 
 export const metadata = {
-  title: "Home | Eatros Platform",
-  description: "Welcome to Eatros, the comprehensive platform for food delivery, restaurant management, and agent networking.",
+  title: "Eatro | Food Delivery & Restaurant Management",
+  description: "Eatro is an innovative food tech platform revolutionizing restaurant management and food delivery. We seamlessly connect hungry consumers with local restaurants and independent delivery agents.",
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: "Home | Eatros Platform",
-    description: "Welcome to Eatros, the comprehensive platform.",
+    title: "Eatro | Food Delivery & Restaurant Management",
+    description: "Eatro is an innovative food tech platform revolutionizing restaurant management and food delivery. We seamlessly connect hungry consumers with local restaurants and independent delivery agents.",
     url: '/',
-    siteName: 'Eatros',
+    siteName: 'Eatro',
     images: [
       {
-        url: '/images/og-image.jpg',
+        url: '/eatrologo.jpeg',
         width: 1200,
         height: 630,
       },
@@ -23,9 +23,9 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Home | Eatros Platform",
-    description: "Welcome to Eatros, the comprehensive platform.",
-    images: ['/images/og-image.jpg'],
+    title: "Eatro | Food Delivery & Restaurant Management",
+    description: "Eatro is an innovative food tech platform revolutionizing restaurant management and food delivery. We seamlessly connect hungry consumers with local restaurants and independent delivery agents.",
+    images: ['/eatrologo.jpeg'],
   },
 };
 
