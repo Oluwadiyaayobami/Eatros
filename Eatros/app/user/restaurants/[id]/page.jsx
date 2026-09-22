@@ -11,7 +11,7 @@
 import RestaurantClient from './RestaurantClient';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://eatros.shop';
+const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://eatro.shop';
 
 /**
  * Server-side helper to fetch vendor profile without needing auth token.
