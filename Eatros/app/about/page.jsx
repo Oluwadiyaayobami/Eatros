@@ -35,18 +35,18 @@ export default function AboutPage() {
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://eatros.com/#organization",
+        "@id": "https://eatros.shop/#organization",
         "name": "Eatros",
-        "url": "https://eatros.com",
+        "url": "https://eatros.shop",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://eatros.com/images/logo.png"
+          "url": "https://eatros.shop/images/logo.png"
         },
         "description": "Innovative Software Solutions for food delivery and restaurant management."
       },
       {
         "@type": "Person",
-        "@id": "https://eatros.com/#ceo",
+        "@id": "https://eatros.shop/#ceo",
         "name": "Akomolafe Folarin O.",
         "jobTitle": "Chief Executive Officer",
         "worksFor": {
@@ -56,7 +56,7 @@ export default function AboutPage() {
       },
       {
         "@type": "Person",
-        "@id": "https://eatros.com/#cto",
+        "@id": "https://eatros.shop/#cto",
         "name": "Oluwadiya Ayobami Bright",
         "jobTitle": "Chief Technology Officer",
         "worksFor": {
