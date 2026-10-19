@@ -3,12 +3,12 @@
 import React from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
-export default function GoogleAuthProvider({ children }) {
-  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
+const DEFAULT_GOOGLE_CLIENT_ID =
+  "703620296200-516k43vgq4vqn4a66km0cuirk4ogghup.apps.googleusercontent.com";
 
-  if (!clientId) {
-    return <>{children}</>;
-  }
+export default function GoogleAuthProvider({ children }) {
+  const clientId =
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || DEFAULT_GOOGLE_CLIENT_ID;
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
@@ -16,3 +16,4 @@ export default function GoogleAuthProvider({ children }) {
     </GoogleOAuthProvider>
   );
 }
+
