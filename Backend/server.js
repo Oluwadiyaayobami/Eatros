@@ -1,6 +1,8 @@
 const express = require("express")
-const env = require("dotenv").config()
+const path = require("path")
+require("dotenv").config({ path: path.join(__dirname, ".env") })
 const cors = require("cors")
+
 const cookieParser = require("cookie-parser")
 const dataBaseConnection = require("./database/database.js")
 const http = require("http")

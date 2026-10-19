@@ -34,14 +34,18 @@ export const viewport = {
 };
 
 import { Toaster } from 'react-hot-toast';
+import GoogleAuthProvider from '../components/GoogleAuthProvider';
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
-        {children}
+        <GoogleAuthProvider>
+          <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
+          {children}
+        </GoogleAuthProvider>
       </body>
     </html>
   );
 }
+

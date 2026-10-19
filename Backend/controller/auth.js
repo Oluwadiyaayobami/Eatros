@@ -1,7 +1,10 @@
 const asyncHandler = require("../utils/errorHandler")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
+const { OAuth2Client } = require("google-auth-library")
 const userSchema = require("../models/user")
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 
 const userRegistration = asyncHandler(async (req, res) => {
@@ -144,10 +147,124 @@ const refreshToken = asyncHandler(async (req, res) => {
     }
 });
 
+const googleAuth = asyncHandler(async (req, res) => {
+    const { credential, access_token, role } = req.body;
+
+    if (!credential && !access_token) {
+        return res.status(400).json({
+            message: "Google token or credential is required."
+        });
+    }
+
+    let payload;
+    if (credential) {
+        try {
+            const ticket = await googleClient.verifyIdToken({
+                idToken: credential,
+                audience: process.env.GOOGLE_CLIENT_ID,
+            });
+            payload = ticket.getPayload();
+        } catch (err) {
+            console.error("Google Token Verification Error:", err.message);
+            return res.status(400).json({
+                message: "Invalid or expired Google credential."
+            });
+        }
+    } else if (access_token) {
+        try {
+            const googleRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+            if (!googleRes.ok) {
+                throw new Error("Failed to fetch Google profile");
+            }
+            payload = await googleRes.json();
+        } catch (err) {
+            console.error("Google Access Token Error:", err.message);
+            return res.status(400).json({
+                message: "Failed to verify Google access token."
+            });
+        }
+    }
+
+    if (!payload || !payload.email) {
+        return res.status(400).json({
+            message: "Could not retrieve email from Google."
+        });
+    }
+
+    const { sub: googleId, email, name, picture, email_verified } = payload;
+
+    // Check if user exists by googleId or email
+    let user = await userSchema.findOne({
+        $or: [{ googleId }, { email: email.toLowerCase() }]
+    });
+
+    if (user) {
+        let hasChanges = false;
+        if (!user.googleId) {
+            user.googleId = googleId;
+            hasChanges = true;
+        }
+        if (!user.profilePicture && picture) {
+            user.profilePicture = picture;
+            hasChanges = true;
+        }
+        if (email_verified && !user.isVerified) {
+            user.isVerified = true;
+            hasChanges = true;
+        }
+        if (hasChanges) {
+            await user.save();
+        }
+    } else {
+        user = await userSchema.create({
+            name: name || "Eatro User",
+            email: email.toLowerCase(),
+            googleId,
+            authProvider: "google",
+            profilePicture: picture || "",
+            role: role || "customer",
+            isVerified: !!email_verified
+        });
+    }
+
+    const acessToken = jwt.sign({
+        userID: user._id
+    }, process.env.jwt, { expiresIn: "1d" });
+
+    const refreshToken = jwt.sign({
+        userID: user._id,
+    }, process.env.refersToken, { expiresIn: "7d" });
+
+    res.cookie('refreshtoken', refreshToken, {
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: false,
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    return res.status(200).json({
+        message: "welcome",
+        acessToken,
+        role: user.role,
+        user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            profilePicture: user.profilePicture
+        }
+    });
+});
+
 module.exports = {
     userRegistration,
     login,
     getProfile,
     updateProfile,
-    refreshToken
-}
+    refreshToken,
+    googleAuth
+}

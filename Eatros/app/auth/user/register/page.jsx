@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, User } from "lucide-react";
 import toast from "react-hot-toast";
+import { useGoogleLogin } from "@react-oauth/google";
 import { fetchApi } from "../../../../utils/api";
 
 const SignUp = () => {
@@ -14,6 +15,7 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   
   useEffect(() => {
     const token = localStorage.getItem('eatroAccessToken');
@@ -51,13 +53,55 @@ const SignUp = () => {
     }
   };
 
-  const handleGoogleAuth = () => {
-    toast.success("Google signup triggered!", { icon: "🌐" });
-    // Simulate navigation
-    setTimeout(() => {
+  const handleGoogleSuccess = async (tokenResponse) => {
+    setIsGoogleLoading(true);
+    try {
+      const data = await fetchApi('/auth/google', {
+        method: 'POST',
+        body: JSON.stringify({
+          access_token: tokenResponse.access_token,
+          role: 'customer'
+        })
+      });
+
+      // Save token and user details to localStorage
+      localStorage.setItem('eatroAccessToken', data.acessToken);
+      localStorage.setItem('eatroUser', JSON.stringify({
+        email: data.user?.email || "",
+        role: data.role,
+        name: data.user?.name || ""
+      }));
+
+      toast.success(data.message || `Account created! Welcome to Eatro.`, {
+        icon: '🎉',
+        style: { borderRadius: '10px', background: '#333', color: '#fff' }
+      });
       router.push("/auth/location");
-    }, 1000);
+    } catch (error) {
+      toast.error(error.message || "Failed to sign up with Google", {
+        style: { borderRadius: '10px', background: '#333', color: '#fff' }
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
   };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: (error) => {
+      console.error("Google Sign Up Error:", error);
+      toast.error("Google sign up was cancelled or encountered an error", {
+        style: { borderRadius: '10px', background: '#333', color: '#fff' }
+      });
+      setIsGoogleLoading(false);
+    }
+  });
+
+  const handleGoogleAuth = () => {
+    setIsGoogleLoading(true);
+    googleLogin();
+  };
+
 
   return (
     <div className="min-h-screen bg-[#FFC244] flex flex-col relative overflow-hidden">
@@ -151,13 +195,22 @@ const SignUp = () => {
         {/* Social Buttons */}
         <div className="w-full max-w-[360px] flex justify-center mb-6">
           <button 
+            type="button"
             onClick={handleGoogleAuth}
-            className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-full py-3.5 font-medium text-sm hover:bg-gray-50 transition shadow-sm"
+            disabled={isLoading || isGoogleLoading}
+            className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-full py-3.5 font-medium text-sm hover:bg-gray-50 transition shadow-sm disabled:opacity-50 cursor-pointer"
           >
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="w-5 h-5" />
-            Sign up with Google
+            {isGoogleLoading ? (
+              <div className="w-5 h-5 border-2 border-gray-400 border-t-black rounded-full animate-spin"></div>
+            ) : (
+              <>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="w-5 h-5" />
+                Sign up with Google
+              </>
+            )}
           </button>
         </div>
+
 
         <p className="text-gray-500 text-sm mb-4">
           Already have an account?{" "}
@@ -167,8 +220,9 @@ const SignUp = () => {
         </p>
 
         <p className="text-gray-400 text-xs text-center max-w-[320px] mt-auto leading-relaxed">
-          By signing up, you automatically accept our <Link href="#" className="underline hover:text-gray-600 transition">Terms & Conditions</Link>, <Link href="#" className="underline hover:text-gray-600 transition">Privacy Policy</Link> and <Link href="#" className="underline hover:text-gray-600 transition">Cookies policy</Link>.
+          By signing up, you automatically accept our <Link href="/term" className="underline hover:text-gray-600 transition">Terms & Conditions</Link>, <Link href="/privacy" className="underline hover:text-gray-600 transition">Privacy Policy</Link> and <Link href="/privacy#cookies-storage" className="underline hover:text-gray-600 transition">Cookies policy</Link>.
         </p>
+
         
       </div>
     </div>

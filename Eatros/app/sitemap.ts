@@ -72,7 +72,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.8,
     },
+    // Privacy Policy
+    {
+      url: `${baseUrl}/privacy`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    // Terms of Service
+    {
+      url: `${baseUrl}/term`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
   ];
+
 
   // ── Dynamic restaurant/vendor pages ───────────────────────────────────────
   const vendors = await getAllVendorIds();

@@ -382,8 +382,9 @@ const VendorRegistration = () => {
                 </div>
                 <input type="checkbox" name="acceptsPrivacy" checked={formData.acceptsPrivacy} onChange={handleChange} className="hidden" required />
                 <span className="text-[#1D1D1D] font-medium leading-snug">
-                  I accept the <a href="#" className="text-[#F8C12C] hover:underline">Privacy Policy</a> <span className="text-red-500">*</span>
+                  I accept the <Link href="/privacy" target="_blank" className="text-[#F8C12C] hover:underline">Privacy Policy</Link> and <Link href="/term" target="_blank" className="text-[#F8C12C] hover:underline">Terms of Service</Link> <span className="text-red-500">*</span>
                 </span>
+
               </label>
             </div>
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, User, Info, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
+import { useGoogleLogin } from "@react-oauth/google";
 import { fetchApi } from "../../../utils/api";
 
 const Login = () => {
@@ -14,6 +15,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   
   useEffect(() => {
     const token = localStorage.getItem('eatroAccessToken');
@@ -63,13 +65,61 @@ const Login = () => {
     }
   };
 
-  const handleGoogleAuth = () => {
-    toast.success("Google login triggered!", { icon: "🌐" });
-    // Simulate navigation
-    setTimeout(() => {
-      router.push("/auth/location");
-    }, 1000);
+  const handleGoogleSuccess = async (tokenResponse) => {
+    setIsGoogleLoading(true);
+    try {
+      const data = await fetchApi('/auth/google', {
+        method: 'POST',
+        body: JSON.stringify({
+          access_token: tokenResponse.access_token,
+          role: 'customer'
+        })
+      });
+
+      localStorage.setItem('eatroAccessToken', data.acessToken);
+      localStorage.setItem('eatroUser', JSON.stringify({
+        email: data.user?.email || "",
+        role: data.role,
+        name: data.user?.name || ""
+      }));
+
+      toast.success(data.message || `Welcome to Eatro!`, {
+        icon: '🚀',
+        style: { borderRadius: '10px', background: '#333', color: '#fff' }
+      });
+
+      if (data.role === 'vendor') {
+        router.push("/restaurant/home_dashboard");
+      } else if (data.role === 'agent') {
+        router.push("/agent/home_dashboard");
+      } else {
+        router.push("/auth/location");
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to log in with Google", {
+        style: { borderRadius: '10px', background: '#333', color: '#fff' }
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
   };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: (error) => {
+      console.error("Google Login Error:", error);
+      toast.error("Google sign in was cancelled or encountered an error", {
+        style: { borderRadius: '10px', background: '#333', color: '#fff' }
+      });
+      setIsGoogleLoading(false);
+    }
+  });
+
+  const handleGoogleAuth = () => {
+    setIsGoogleLoading(true);
+    googleLogin();
+  };
+
 
   return (
     <>
@@ -151,13 +201,22 @@ const Login = () => {
 
           <div className="w-full max-w-[360px] flex justify-center mb-6">
             <button 
+              type="button"
               onClick={handleGoogleAuth}
-              className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-full py-3.5 font-medium text-sm hover:bg-gray-50 transition shadow-sm"
+              disabled={isLoading || isGoogleLoading}
+              className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-full py-3.5 font-medium text-sm hover:bg-gray-50 transition shadow-sm disabled:opacity-50 cursor-pointer"
             >
-              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="w-5 h-5" />
-              Continue with Google
+              {isGoogleLoading ? (
+                <div className="w-5 h-5 border-2 border-gray-400 border-t-black rounded-full animate-spin"></div>
+              ) : (
+                <>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="w-5 h-5" />
+                  Continue with Google
+                </>
+              )}
             </button>
           </div>
+
 
           <p className="text-gray-500 text-sm mb-4">
             Don't have an account?{" "}
@@ -167,8 +226,9 @@ const Login = () => {
           </p>
 
           <p className="text-gray-400 text-xs text-center max-w-[320px] mt-auto leading-relaxed">
-            By continuing, you automatically accept our <Link href="#" className="underline hover:text-gray-600 transition">Terms & Conditions</Link>, <Link href="#" className="underline hover:text-gray-600 transition">Privacy Policy</Link> and <Link href="#" className="underline hover:text-gray-600 transition">Cookies policy</Link>.
+            By continuing, you automatically accept our <Link href="/term" className="underline hover:text-gray-600 transition">Terms & Conditions</Link>, <Link href="/privacy" className="underline hover:text-gray-600 transition">Privacy Policy</Link> and <Link href="/privacy#cookies-storage" className="underline hover:text-gray-600 transition">Cookies policy</Link>.
           </p>
+
           
         </div>
       </div>
@@ -240,21 +300,47 @@ const Login = () => {
           {/* Login Button */}
           <button 
             onClick={handleContinue}
-            disabled={isLoading}
-            className={`w-full ${isLoading ? 'bg-gray-400' : 'bg-[#1D1D1D]'} text-white rounded-lg py-4 mt-10 font-bold text-lg hover:bg-black transition shadow-lg flex justify-center items-center`}
+            disabled={isLoading || isGoogleLoading}
+            className={`w-full ${isLoading ? 'bg-gray-400' : 'bg-[#1D1D1D]'} text-white rounded-lg py-4 mt-8 font-bold text-lg hover:bg-black transition shadow-lg flex justify-center items-center`}
           >
             {isLoading ? (
                 <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
             ) : "Log in"}
           </button>
 
+          {/* Divider */}
+          <div className="flex items-center gap-4 my-5 text-gray-400 text-sm">
+            <div className="flex-1 h-px bg-gray-200"></div>
+            <span>or</span>
+            <div className="flex-1 h-px bg-gray-200"></div>
+          </div>
+
+          {/* Desktop Google Button */}
+          <button 
+            type="button"
+            onClick={handleGoogleAuth}
+            disabled={isLoading || isGoogleLoading}
+            className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg py-3.5 font-semibold text-base hover:bg-gray-50 transition shadow-sm disabled:opacity-50 cursor-pointer text-[#1D1D1D]"
+          >
+            {isGoogleLoading ? (
+              <div className="w-5 h-5 border-2 border-gray-400 border-t-black rounded-full animate-spin"></div>
+            ) : (
+              <>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="w-5 h-5" />
+                Continue with Google
+              </>
+            )}
+          </button>
+
         </div>
+
 
         {/* Footer Links */}
         <div className="absolute bottom-10 flex gap-8 text-black font-semibold text-lg z-10">
-          <Link href="#" className="hover:underline">Privacy policy</Link>
-          <Link href="#" className="hover:underline">Terms of service</Link>
+          <Link href="/privacy" className="hover:underline">Privacy policy</Link>
+          <Link href="/term" className="hover:underline">Terms of service</Link>
         </div>
+
 
       </div>
     </>
