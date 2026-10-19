@@ -107,13 +107,17 @@ const Login = () => {
   const googleLogin = useGoogleLogin({
     onSuccess: handleGoogleSuccess,
     onError: (error) => {
-      console.error("Google Login Error:", error);
-      toast.error("Google sign in was cancelled or encountered an error", {
-        style: { borderRadius: '10px', background: '#333', color: '#fff' }
-      });
+      console.error("Google Login Error details:", error);
+      toast.error(
+        error?.error_description || error?.message || "Google sign in was cancelled or encountered an error",
+        {
+          style: { borderRadius: '10px', background: '#333', color: '#fff' }
+        }
+      );
       setIsGoogleLoading(false);
     }
   });
+
 
   const handleGoogleAuth = () => {
     setIsGoogleLoading(true);

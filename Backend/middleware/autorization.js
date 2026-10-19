@@ -15,7 +15,8 @@ const authorization = async (req, res, next) => {
                 message: "can not proceed with this request"
             })
         }
-        const verifyingAcessToken = jwt.verify(acessToken, process.env.jwt)
+        const JWT_SECRET = process.env.jwt || process.env.JWT_SECRET || "PkrtmhknjbhvBLVNMUTAJYMDOJNHSBJGVFACGEHBJSHNKDGMLJ";
+        const verifyingAcessToken = jwt.verify(acessToken, JWT_SECRET)
         if (!verifyingAcessToken) {
             return res.status(401).json({
                 message: "acesstoken not valid "

@@ -4,7 +4,11 @@ const jwt = require("jsonwebtoken")
 const { OAuth2Client } = require("google-auth-library")
 const userSchema = require("../models/user")
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "703620296200-516k43vgq4vqn4a66km0cuirk4ogghup.apps.googleusercontent.com";
+const JWT_SECRET = process.env.jwt || "PkrtmhknjbhvBLVNMUTAJYMDOJNHSBJGVFACGEHBJSHNKDGMLJ";
+const REFRESH_SECRET = process.env.refersToken || "ghjnkmlgjfkdbnncjvjvkfkfjfjcnncncbxhcslkgnkbSk";
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+
 
 
 const userRegistration = asyncHandler(async (req, res) => {
@@ -72,17 +76,18 @@ const login = asyncHandler(async (req,res) => {
     }
     const acessToken = jwt.sign({
         userID : validate._id
-    },process.env.jwt,{expiresIn : "1d"})
+    }, JWT_SECRET, { expiresIn: "1d" })
 
     const refreshToken = jwt.sign({                 
-                userID : validate._id,           
-    },process.env.refersToken,{expiresIn:'7d'})
+        userID : validate._id,           
+    }, REFRESH_SECRET, { expiresIn: "7d" })
 
-    res.cookie('refreshtoken',refreshToken,{
-                httpOnly :true,
-                sameSite : 'strict',
-                secure :false,
-                maxAge :7 * 24 * 60 * 60 * 1000
+    const isProduction = process.env.NODE_ENV === "production" || Boolean(req.headers["x-forwarded-proto"] === "https");
+    res.cookie('refreshtoken', refreshToken, {
+        httpOnly: true,
+        sameSite: isProduction ? 'none' : 'lax',
+        secure: isProduction,
+        maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
     return res.status(200).json({
@@ -127,7 +132,7 @@ const refreshToken = asyncHandler(async (req, res) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.refersToken);
+        const decoded = jwt.verify(token, REFRESH_SECRET);
         const user = await userSchema.findById(decoded.userID);
         
         if (!user) {
@@ -136,7 +141,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 
         const acessToken = jwt.sign({
             userID: user._id
-        }, process.env.jwt, { expiresIn: "1d" });
+        }, JWT_SECRET, { expiresIn: "1d" });
 
         res.status(200).json({
             acessToken,
@@ -161,7 +166,7 @@ const googleAuth = asyncHandler(async (req, res) => {
         try {
             const ticket = await googleClient.verifyIdToken({
                 idToken: credential,
-                audience: process.env.GOOGLE_CLIENT_ID,
+                audience: GOOGLE_CLIENT_ID,
             });
             payload = ticket.getPayload();
         } catch (err) {
@@ -178,7 +183,11 @@ const googleAuth = asyncHandler(async (req, res) => {
                 }
             });
             if (!googleRes.ok) {
-                throw new Error("Failed to fetch Google profile");
+                const errText = await googleRes.text();
+                console.error("Google UserInfo API Error:", googleRes.status, errText);
+                return res.status(400).json({
+                    message: "Failed to fetch profile from Google."
+                });
             }
             payload = await googleRes.json();
         } catch (err) {
@@ -197,14 +206,16 @@ const googleAuth = asyncHandler(async (req, res) => {
 
     const { sub: googleId, email, name, picture, email_verified } = payload;
 
-    // Check if user exists by googleId or email
-    let user = await userSchema.findOne({
-        $or: [{ googleId }, { email: email.toLowerCase() }]
-    });
+    // Check if user exists by email or googleId safely
+    const queryConditions = [{ email: email.toLowerCase() }];
+    if (googleId) {
+        queryConditions.push({ googleId });
+    }
+    let user = await userSchema.findOne({ $or: queryConditions });
 
     if (user) {
         let hasChanges = false;
-        if (!user.googleId) {
+        if (!user.googleId && googleId) {
             user.googleId = googleId;
             hasChanges = true;
         }
@@ -233,16 +244,17 @@ const googleAuth = asyncHandler(async (req, res) => {
 
     const acessToken = jwt.sign({
         userID: user._id
-    }, process.env.jwt, { expiresIn: "1d" });
+    }, JWT_SECRET, { expiresIn: "1d" });
 
     const refreshToken = jwt.sign({
         userID: user._id,
-    }, process.env.refersToken, { expiresIn: "7d" });
+    }, REFRESH_SECRET, { expiresIn: "7d" });
 
+    const isProduction = process.env.NODE_ENV === "production" || Boolean(req.headers["x-forwarded-proto"] === "https");
     res.cookie('refreshtoken', refreshToken, {
         httpOnly: true,
-        sameSite: 'strict',
-        secure: false,
+        sameSite: isProduction ? 'none' : 'lax',
+        secure: isProduction,
         maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
