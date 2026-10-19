@@ -76,18 +76,18 @@ const login = asyncHandler(async (req,res) => {
     }
     const acessToken = jwt.sign({
         userID : validate._id
-    }, JWT_SECRET, { expiresIn: "1d" })
+    }, JWT_SECRET, { expiresIn: "7d" })
 
     const refreshToken = jwt.sign({                 
         userID : validate._id,           
-    }, REFRESH_SECRET, { expiresIn: "7d" })
+    }, REFRESH_SECRET, { expiresIn: "30d" })
 
     const isProduction = process.env.NODE_ENV === "production" || Boolean(req.headers["x-forwarded-proto"] === "https");
     res.cookie('refreshtoken', refreshToken, {
         httpOnly: true,
         sameSite: isProduction ? 'none' : 'lax',
         secure: isProduction,
-        maxAge: 7 * 24 * 60 * 60 * 1000
+        maxAge: 30 * 24 * 60 * 60 * 1000
     })
 
     return res.status(200).json({
@@ -141,11 +141,29 @@ const refreshToken = asyncHandler(async (req, res) => {
 
         const acessToken = jwt.sign({
             userID: user._id
-        }, JWT_SECRET, { expiresIn: "1d" });
+        }, JWT_SECRET, { expiresIn: "7d" });
+
+        const newRefreshToken = jwt.sign({
+            userID: user._id,
+        }, REFRESH_SECRET, { expiresIn: "30d" });
+
+        const isProduction = process.env.NODE_ENV === "production" || Boolean(req.headers["x-forwarded-proto"] === "https");
+        res.cookie('refreshtoken', newRefreshToken, {
+            httpOnly: true,
+            sameSite: isProduction ? 'none' : 'lax',
+            secure: isProduction,
+            maxAge: 30 * 24 * 60 * 60 * 1000
+        });
 
         res.status(200).json({
             acessToken,
-            role: user.role
+            role: user.role,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
         });
     } catch (err) {
         return res.status(401).json({ message: "Refresh token is expired or invalid. Please log in again." });
@@ -244,18 +262,18 @@ const googleAuth = asyncHandler(async (req, res) => {
 
     const acessToken = jwt.sign({
         userID: user._id
-    }, JWT_SECRET, { expiresIn: "1d" });
+    }, JWT_SECRET, { expiresIn: "7d" });
 
     const refreshToken = jwt.sign({
         userID: user._id,
-    }, REFRESH_SECRET, { expiresIn: "7d" });
+    }, REFRESH_SECRET, { expiresIn: "30d" });
 
     const isProduction = process.env.NODE_ENV === "production" || Boolean(req.headers["x-forwarded-proto"] === "https");
     res.cookie('refreshtoken', refreshToken, {
         httpOnly: true,
         sameSite: isProduction ? 'none' : 'lax',
         secure: isProduction,
-        maxAge: 7 * 24 * 60 * 60 * 1000
+        maxAge: 30 * 24 * 60 * 60 * 1000
     });
 
     return res.status(200).json({

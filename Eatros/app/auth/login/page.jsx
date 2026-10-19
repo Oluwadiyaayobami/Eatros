@@ -7,6 +7,7 @@ import { Mail, Lock, User, Info, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { useGoogleLogin } from "@react-oauth/google";
 import { fetchApi } from "../../../utils/api";
+import { checkUserSession, getDashboardRoute } from "../../../utils/auth";
 
 const Login = () => {
   const router = useRouter();
@@ -18,10 +19,17 @@ const Login = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   
   useEffect(() => {
-    const token = localStorage.getItem('eatroAccessToken');
-    if (token) {
-      router.push('/auth/location');
-    }
+    let isMounted = true;
+    const verifyExistingSession = async () => {
+      const session = await checkUserSession();
+      if (session.isAuthenticated && isMounted) {
+        router.replace(session.route);
+      }
+    };
+    verifyExistingSession();
+    return () => {
+      isMounted = false;
+    };
   }, [router]);
   
   const handleContinue = async () => {
@@ -49,13 +57,7 @@ const Login = () => {
       });
       
       // Redirect based on role
-      if (data.role === 'vendor') {
-        router.push("/restaurant/home_dashboard");
-      } else if (data.role === 'agent') {
-        router.push("/agent/home_dashboard");
-      } else {
-        router.push("/auth/location");
-      }
+      router.push(getDashboardRoute(data.role));
     } catch (error) {
       toast.error(error.message || "Failed to login", {
         style: { borderRadius: '10px', background: '#333', color: '#fff' }
@@ -88,13 +90,7 @@ const Login = () => {
         style: { borderRadius: '10px', background: '#333', color: '#fff' }
       });
 
-      if (data.role === 'vendor') {
-        router.push("/restaurant/home_dashboard");
-      } else if (data.role === 'agent') {
-        router.push("/agent/home_dashboard");
-      } else {
-        router.push("/auth/location");
-      }
+      router.push(getDashboardRoute(data.role));
     } catch (error) {
       toast.error(error.message || "Failed to log in with Google", {
         style: { borderRadius: '10px', background: '#333', color: '#fff' }

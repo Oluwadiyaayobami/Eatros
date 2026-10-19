@@ -1,9 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Info, Menu, ChevronDown, Check, X, Store, CreditCard, TrendingUp, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { fetchApi } from "@/utils/api";
+import { checkUserSession } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 
 const VendorRegistration = () => {
@@ -13,6 +14,20 @@ const VendorRegistration = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const verifyExistingSession = async () => {
+      const session = await checkUserSession();
+      if (session.isAuthenticated && isMounted) {
+        router.replace(session.route);
+      }
+    };
+    verifyExistingSession();
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
   
   const [formData, setFormData] = useState({
     establishmentName: "",

@@ -7,6 +7,7 @@ import { Mail, Lock, User } from "lucide-react";
 import toast from "react-hot-toast";
 import { useGoogleLogin } from "@react-oauth/google";
 import { fetchApi } from "../../../../utils/api";
+import { checkUserSession, getDashboardRoute } from "../../../../utils/auth";
 
 const SignUp = () => {
   const router = useRouter();
@@ -18,10 +19,17 @@ const SignUp = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   
   useEffect(() => {
-    const token = localStorage.getItem('eatroAccessToken');
-    if (token) {
-      router.push('/auth/location');
-    }
+    let isMounted = true;
+    const verifyExistingSession = async () => {
+      const session = await checkUserSession();
+      if (session.isAuthenticated && isMounted) {
+        router.replace(session.route);
+      }
+    };
+    verifyExistingSession();
+    return () => {
+      isMounted = false;
+    };
   }, [router]);
   
   const handleSignUp = async () => {
@@ -76,7 +84,7 @@ const SignUp = () => {
         icon: '🎉',
         style: { borderRadius: '10px', background: '#333', color: '#fff' }
       });
-      router.push("/auth/location");
+      router.push(getDashboardRoute(data.role));
     } catch (error) {
       toast.error(error.message || "Failed to sign up with Google", {
         style: { borderRadius: '10px', background: '#333', color: '#fff' }

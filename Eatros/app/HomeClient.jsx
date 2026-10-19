@@ -1,17 +1,21 @@
-"use client"
-
-import { useState } from "react";
+"use client";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import LoadingAnimation from "@/components/LoadingAnimation";
+import { checkUserSession } from "@/utils/auth";
 
 export default function HomeClient() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const handleAnimationComplete = () => {
+  const handleAnimationComplete = async () => {
     setLoading(false);
-    // Changing this to point to the new login page route
-    router.push('/login');
+    const session = await checkUserSession();
+    if (session.isAuthenticated) {
+      router.replace(session.route);
+    } else {
+      router.replace("/auth/login");
+    }
   };
 
   if (loading) {
