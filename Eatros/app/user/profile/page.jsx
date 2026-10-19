@@ -61,14 +61,17 @@ const ProfilePage = () => {
       <div className="pt-12 px-6 pb-6 relative">
         <div className="flex justify-between items-start mb-6">
           <div className="relative">
-            {/* Small N circle (simulating the 'N' bubble in the design) */}
-            <div className="absolute -top-2 -left-2 w-10 h-10 bg-[#3B3428] rounded-full flex items-center justify-center text-white text-sm z-10 border-2 border-[#F6C641]">
-              N
-            </div>
-            {/* Main Initials Circle */}
-            <div className="w-20 h-20 bg-[#9DE5DC] rounded-full flex items-center justify-center text-[#1E3A3A] text-xl font-bold border-2 border-[#F6C641] shadow-sm ml-4 mt-2 relative z-0">
-              {initials || "U"}
-            </div>
+            {profile.profilePicture ? (
+              <img
+                src={profile.profilePicture}
+                alt={profile.name}
+                className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-sm"
+              />
+            ) : (
+              <div className="w-20 h-20 bg-[#9DE5DC] rounded-full flex items-center justify-center text-[#1E3A3A] text-xl font-bold border-2 border-white shadow-sm">
+                {initials || "U"}
+              </div>
+            )}
           </div>
           
           <button className="bg-[#00A082] text-white px-5 py-2 rounded-full font-bold text-sm shadow-sm hover:opacity-90">
